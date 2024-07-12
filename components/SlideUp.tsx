@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default function SlideUp({ children, offset = "0px" }: Props) {
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -23,10 +23,18 @@ export default function SlideUp({ children, offset = "0px" }: Props) {
       { rootMargin: offset }
     )
 
-    if (ref.current) {
-      observer.observe(ref.current)
+    const currentRef = ref.current;
+    if (currentRef) {
+      observer.observe(currentRef)
     }
-  }, [ref])
+
+    // Cleanup the observer on component unmount
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef)
+      }
+    }
+  }, [offset]) // Include 'offset' in the dependency array
 
   return (
     <div ref={ref} className="relative opacity-0">
